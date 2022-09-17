@@ -37,6 +37,8 @@ db.sequelize = sequelize
 
 db.panels = require('./_panels/panels.model')(sequelize, DataTypes)
 db.position = require('./positions/position.model')(sequelize, DataTypes)
+db.indicator = require('./panel_indicator/indicator.model')(sequelize, DataTypes)
+db.textIndicator = require('./panel_indicator_text/text_indicator.model')(sequelize, DataTypes)
 
 db.sequelize.sync({ force: false })
 .then(() => {
@@ -48,15 +50,14 @@ db.sequelize.sync({ force: false })
 // // 1 to Many Relation
 
 // db.panels.hasMany(db.position, {
-db.panels.hasOne(db.position, {
-    foreignKey: 'panel_id',
-    as: 'position'
-})
+db.panels.hasOne(db.position, { foreignKey: 'panel_id', as: 'position' })
+db.position.belongsTo(db.panels, { foreignKey: 'panel_id', as: 'panel' })
 
-db.position.belongsTo(db.panels, {
-    foreignKey: 'panel_id',
-    as: 'panel'
-})
+db.panels.hasOne(db.indicator, { foreignKey: 'panel_id', as: 'indicator' })
+db.indicator.belongsTo(db.panels, { foreignKey: 'panel_id', as: 'panel' })
+
+db.panels.hasOne(db.textIndicator, { foreignKey: 'panel_id', as: 'textIndicator' })
+db.textIndicator.belongsTo(db.panels, { foreignKey: 'panel_id', as: 'panel' })
 
 
 
