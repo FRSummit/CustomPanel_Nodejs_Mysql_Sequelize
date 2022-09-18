@@ -8,11 +8,6 @@ const TextIndicator = db.textIndicator
 const Chart = db.chart
 const ChartYSeries = db.chart_y_series
 
-// 1. ============= GET list of all Panles =============
-exports.panelList = async (req, res) => {
-    try {
-        // let panel = await Panel.findAll({})
-        // let position = await Position.findAll({})
         // POSITION
         Panel.hasOne(Position,{foreignKey : 'panel_id'});
         Position.belongsTo(Panel,{foreignKey: 'panel_id'});
@@ -33,9 +28,15 @@ exports.panelList = async (req, res) => {
         Chart.hasMany(ChartYSeries,{foreignKey : 'chart_id'});
         ChartYSeries.belongsTo(Chart,{foreignKey: 'chart_id'});
 
+// 1. ============= GET list of all Panles =============
+exports.panelList = async (req, res) => {
+    try {
+        // let panel = await Panel.findAll({})
+        // let position = await Position.findAll({})
+
         // let ch = await Chart.findAll({include: [ChartYSeries]})
         // let panles = await Panel.findAll({include: [Position, Indicator, TextIndicator, Chart]});
-        let panles = await Panel.findAll({
+        let panels = await Panel.findAll({
             include: [
                 {model: Position}, 
                 {model: Indicator}, 
@@ -46,7 +47,7 @@ exports.panelList = async (req, res) => {
             ]
         });
         let msg = "Success"
-        return apiResponse.successResponseWithData(res, msg, panles);
+        return apiResponse.successResponseWithData(res, msg, panels);
         // return res.status(200).send(panles)
     }
     catch (err) {
@@ -153,8 +154,46 @@ exports.addPanel = async (req, res) => {
 
 
 // 3. ============= Get Single Panel =============
+exports.getSinglePanel = async (req, res) => {
+    try {
+        let id = req.params.id
+        let panel = await Panel.findOne({ where: { id: id }, include: [
+            {model: Position}, 
+            {model: Indicator}, 
+            {model: TextIndicator}, 
+            {model: Chart,
+                include: [ChartYSeries]
+            }
+        ]})
+        let msg = "Success"
+        return apiResponse.successResponseWithData(res, msg, panel);
+        // res.status(200).send(panel)
+    }
+    catch (err) {
+        return apiResponse.errorResponse(res, err);
+    }
+}
+
 // 4. ============= Update Panel =============
 // 5. ============= Delete Panel =============
 // 6. ============= Get Panel by WHERE query =============
 // 7. ============= Connect one to many relation and find one =============
 // 8. ============= Upload Image =============
+
+// const getPanelRelation = () => {
+    
+// }
+
+// module.exports = {
+//     getPanelRelation,
+//     getSinglePanel,
+//     // addProduct,
+//     // getAllProducts,
+//     // getOneProduct,
+//     // updateProduct,
+//     // deleteProduct,
+//     // getPublishedProduct,
+//     // getProductReviews,
+//     // upload
+    
+// }
