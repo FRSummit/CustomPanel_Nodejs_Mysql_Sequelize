@@ -11,6 +11,8 @@ router.get('/', panel_controller.panelList);
 router.post('/create', panel_controller.addPanel);
 router.get('/:id', panel_controller.getSinglePanel);
 
+// router.post('/addProduct', productController.upload , productController.addProduct)
+
 // // GET detail for a specific student.
 // router.get('/:id', authenticateJWT, student_controller.student_detail);
 

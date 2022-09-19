@@ -1,3 +1,8 @@
+// image Upload
+const multer = require('multer')
+const path = require('path')
+
+
 const db = require('../index.model');
 const apiResponse = require('../../helpers/apiResponses');
 
@@ -8,25 +13,25 @@ const TextIndicator = db.textIndicator
 const Chart = db.chart
 const ChartYSeries = db.chart_y_series
 
-        // POSITION
-        Panel.hasOne(Position,{foreignKey : 'panel_id'});
-        Position.belongsTo(Panel,{foreignKey: 'panel_id'});
+// POSITION
+Panel.hasOne(Position,{foreignKey : 'panel_id'});
+Position.belongsTo(Panel,{foreignKey: 'panel_id'});
 
-        // INDICATOR
-        Panel.hasOne(Indicator,{foreignKey : 'panel_id'});
-        Indicator.belongsTo(Panel,{foreignKey: 'panel_id'});
+// INDICATOR
+Panel.hasOne(Indicator,{foreignKey : 'panel_id'});
+Indicator.belongsTo(Panel,{foreignKey: 'panel_id'});
 
-        // TEXT INDICATOR
-        Panel.hasOne(TextIndicator,{foreignKey : 'panel_id'});
-        TextIndicator.belongsTo(Panel,{foreignKey: 'panel_id'});
+// TEXT INDICATOR
+Panel.hasOne(TextIndicator,{foreignKey : 'panel_id'});
+TextIndicator.belongsTo(Panel,{foreignKey: 'panel_id'});
 
-        // CHART
-        Panel.hasOne(Chart,{foreignKey : 'panel_id'});
-        Chart.belongsTo(Panel,{foreignKey: 'panel_id'});
+// CHART
+Panel.hasOne(Chart,{foreignKey : 'panel_id'});
+Chart.belongsTo(Panel,{foreignKey: 'panel_id'});
 
-        // CHART SERIES
-        Chart.hasMany(ChartYSeries,{foreignKey : 'chart_id'});
-        ChartYSeries.belongsTo(Chart,{foreignKey: 'chart_id'});
+// CHART SERIES
+Chart.hasMany(ChartYSeries,{foreignKey : 'chart_id'});
+ChartYSeries.belongsTo(Chart,{foreignKey: 'chart_id'});
 
 // 1. ============= GET list of all Panles =============
 exports.panelList = async (req, res) => {
@@ -175,13 +180,54 @@ exports.getSinglePanel = async (req, res) => {
 }
 
 // 4. ============= Update Panel =============
+exports.updatePanel = async (req, res) => {
+    let id = req.params.id
+    const product = await Panel.update(req.body, { where: { id: id }})
+    res.status(200).send(product)
+}
+
 // 5. ============= Delete Panel =============
+exports.deletePanel = async (req, res) => {
+    let id = req.params.id    
+    await Panel.destroy({ where: { id: id }} )
+    res.status(200).send('Panel is deleted !')
+}
+
 // 6. ============= Get Panel by WHERE query =============
+exports.getpanelByType = async (req, res) => {
+    const panels =  await Panel.findAll({ where: { panel_type: panel_type }})
+    res.status(200).send(panels)
+}
+
 // 7. ============= Connect one to many relation and find one =============
 // 8. ============= Upload Image =============
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'Images')
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + path.extname(file.originalname))
+    }
+})
+
+exports.upload = multer({
+    storage: storage,
+    limits: { fileSize: '1000000' },
+    fileFilter: (req, file, cb) => {
+        const fileTypes = /jpeg|jpg|png|gif/
+        const mimeType = fileTypes.test(file.mimetype)  
+        const extname = fileTypes.test(path.extname(file.originalname))
+
+        if(mimeType && extname) {
+            return cb(null, true)
+        }
+        cb('Give proper files formate to upload')
+    }
+}).single('image')
+
+
 
 // const getPanelRelation = () => {
-    
 // }
 
 // module.exports = {
